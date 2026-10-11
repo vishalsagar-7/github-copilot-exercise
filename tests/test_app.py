@@ -21,6 +21,13 @@ def reset_activities():
 client = TestClient(app)
 
 
+def test_get_activities_returns_all_activities():
+    response = client.get("/activities")
+
+    assert response.status_code == 200
+    assert response.json() == activities
+
+
 def test_valid_signup_adds_student():
     email = "newstudent@mergington.edu"
 
@@ -56,3 +63,22 @@ def test_nonexistent_activity_still_returns_404():
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Activity not found"}
+
+
+def test_unregister_from_nonexistent_activity_returns_404():
+    email = "test@mergington.edu"
+
+    response = client.delete(f"/activities/Unknown Activity/participants/{email}")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Activity not found"}
+
+
+def test_unregister_nonparticipant_returns_404():
+    email = "test@mergington.edu"
+
+    response = client.delete(f"/activities/Chess Club/participants/{email}")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Participant not found"}
+    assert email not in activities["Chess Club"]["participants"]
