@@ -41,6 +41,16 @@ def test_duplicate_signup_returns_400():
     assert activities["Chess Club"]["participants"].count(email) == 1
 
 
+def test_unregister_participant_removes_email():
+    email = "michael@mergington.edu"
+
+    response = client.delete(f"/activities/Chess Club/participants/{email}")
+
+    assert response.status_code == 200
+    assert response.json() == {"message": f"Removed {email} from Chess Club"}
+    assert email not in activities["Chess Club"]["participants"]
+
+
 def test_nonexistent_activity_still_returns_404():
     response = client.post("/activities/Unknown Activity/signup?email=test@mergington.edu")
 
